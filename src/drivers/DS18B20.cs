@@ -5,7 +5,6 @@ namespace rpi_dotnet
     public class DS18B20 : IOneWireDevice
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private static readonly string w1busPath = "/sys/bus/w1/devices";
 
         class DS18B20Measure
         {
@@ -31,8 +30,8 @@ namespace rpi_dotnet
             get { return _deviceID; }
             private set { _deviceID = value; }
         }
-        private float _lastMeasure;
-        public float lastMeasure
+        private float? _lastMeasure;
+        public float? lastMeasure
         {
             get { return _lastMeasure; }
             private set { _lastMeasure = value; }
@@ -41,13 +40,13 @@ namespace rpi_dotnet
         public float Measure()
         {
             log.Debug($"Get measure for device: {_deviceID}");
-            var rawOutput = file.Read($"{w1busPath}/{_deviceID}/w1_slave");
-            log.Debug($"Read raw data: '''{rawOutput}'''");
+            var rawOutput = file.Read($"{OneWire.path}/{_deviceID}/w1_slave");
+            log.Debug($"Read raw data: {rawOutput}");
             var measure = new DS18B20Measure(rawOutput);
             if (measure.crcStatus)
             {
                 lastMeasure = measure.temp;
-                return lastMeasure;
+                return (float)lastMeasure; //corrected measure date could not be null
             }
             else throw new System.Exception();
         }

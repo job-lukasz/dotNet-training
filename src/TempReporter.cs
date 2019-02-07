@@ -12,24 +12,27 @@ namespace rpi_dotnet
         public TempReporter(List<DeviceConfiguration> configuration, OneWire w1Bus = null, InfluxClient influxClient = null)
         {
             configuredDevices = configuration;
-            client = influxClient ?? new InfluxClient("home-server.local", "homeTest"); //TODO: move this hardcoded data
+            client = influxClient ?? new InfluxClient("http://home-server.local:8086", "homeTest"); //TODO: move this hardcoded data
             initDevices();
         }
 
         public bool Report()
         {
             var success = true;
-            if (ReadTemp()) //report only when all devices readed succesfully
+            if (ReadTemp()) //report only when all found devices read succesfully
             {
                 configuredDevices.ForEach(async (device) =>
                 {
                     try
                     {
-                        var successfull = await client.addMeasure("temperature", device.spaceID, device.sensor.lastMeasure);
-                        if (!successfull)
+                        if (device.sensor != null && device.sensor.lastMeasure != null)
                         {
-                            success = false;
-                            log.Warn($"Something went wrong during sent data to DB. Device: {device.deviceID}");
+                            var successfull = await client.addMeasure("temperature", device.spaceID, (double)device.sensor.lastMeasure);
+                            if (!successfull)
+                            {
+                                success = false;
+                                log.Warn($"Something went wrong during sent data to DB. Device: {device.deviceID}");
+                            }
                         }
                     }
                     catch (Exception err)
@@ -45,7 +48,6 @@ namespace rpi_dotnet
         private void initDevices()
         {
             var w1bus = new OneWire();
-            var devices = w1bus.getDevices();
             configuredDevices.ForEach((currentDevice) =>
             {
                 var foundedDevice = w1bus.getDevice(currentDevice.deviceID);
@@ -63,21 +65,21 @@ namespace rpi_dotnet
         }
         private bool ReadTemp()
         {
-            var success = true;
+            var isSuccess = true;
             configuredDevices.ForEach(device =>
             {
                 try
                 {
-                    device.sensor.Measure();
+                    if (device.sensor != null) device.sensor.Measure();
                 }
                 catch (Exception err)
                 {
                     log.Error($"Exception during reading value for device: {device.deviceID}");
                     log.Error(err);
-                    success = false;
+                    isSuccess = false;
                 }
             });
-            return success;
+            return isSuccess;
         }
     }
 }

@@ -15,9 +15,14 @@ namespace rpi_dotnet
         {
             File.OpenWrite(filePath).Write(Encoding.ASCII.GetBytes(text));
         }
-        public List<string> ListFiles(string path)
+        public List<string> ListDirectories(string path)
         {
-            return new List<string>(Directory.GetFiles(path));
+            var directories = new List<string>();
+            foreach(var dir in Directory.GetDirectories(path)){
+                var dirInfo = new DirectoryInfo(dir);
+                directories.Add(dirInfo.Name);
+            }
+            return directories;
         }
     }
 }

@@ -40,9 +40,9 @@ namespace rpi_dotnet
                 }
             }
             var point = new InfluxDatapoint<InfluxValueField>();
-            point.UtcTimestamp = DateTime.Now;
+            point.UtcTimestamp = DateTime.UtcNow;
             point.Tags.Add("spaceID", spaceID);
-            point.Fields.Add("Doublefield", new InfluxValueField(value));
+            point.Fields.Add("value", new InfluxValueField(value));
             point.MeasurementName = measureName;
             log.Info($"Add measure point: {{MeasureName: {measureName}, spaceID: {spaceID}, value: {value} }} to {database}");
             return await influx.PostPointAsync(database, point);
