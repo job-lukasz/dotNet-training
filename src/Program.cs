@@ -6,7 +6,6 @@ namespace rpi_dotnet
 
     class Program
     {
-
         public static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly List<DeviceConfiguration> tempDeviceConfigurations = new List<DeviceConfiguration>{
             new DeviceConfiguration("28-000006cc02c9","salon"),
@@ -15,7 +14,7 @@ namespace rpi_dotnet
 
         static void Main(string[] args)
         {
-            
+
             var temperatureReporter = new TempReporter(tempDeviceConfigurations);
 
             log.Info("Start main program loop");
@@ -28,3 +27,8 @@ namespace rpi_dotnet
         }
     }
 }
+
+//TECHNICAL DEBT
+//TODO: Error handling - more precise
+//TODO: Parameters
+//TODO: Remove hardcoded values
