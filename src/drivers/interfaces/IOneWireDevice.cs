@@ -2,7 +2,7 @@ namespace rpi_dotnet
 {
     public interface IOneWireDevice
     {
-        string deviceID { get; set; }
+        string deviceID { get; }
         float Measure();
     }
 }

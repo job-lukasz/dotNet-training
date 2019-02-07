@@ -6,7 +6,7 @@ namespace rpi_dotnet
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly string w1busPath = "/sys/bus/w1/devices";
-        
+
         class DS18B20Measure
         {
             public float temp;
@@ -22,15 +22,14 @@ namespace rpi_dotnet
         private IFileWrapper file;
         public DS18B20(string deviceID, IFileWrapper fileWrapper = null)
         {
-            if (fileWrapper == null) file = new FileWrapper();
-            else file = fileWrapper;
+            file = fileWrapper ?? new FileWrapper();
             this._deviceID = deviceID;
         }
 
         public string deviceID
         {
             get { return _deviceID; }
-            set { _deviceID = value; }
+            private set { _deviceID = value; }
         }
         public float Measure()
         {

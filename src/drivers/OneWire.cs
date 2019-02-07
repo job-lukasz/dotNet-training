@@ -10,8 +10,7 @@ namespace rpi_dotnet
         private IFileWrapper file;
         public OneWire(IFileWrapper fileWrapper = null)
         {
-            if (fileWrapper == null) file = new FileWrapper();
-            else file = fileWrapper;
+            file = fileWrapper ?? new FileWrapper();
         }
 
         public List<IOneWireDevice> getDevices()

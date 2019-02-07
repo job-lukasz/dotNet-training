@@ -15,7 +15,7 @@ namespace Tests
         }
 
         [Test]
-        public void MeasureDeviceShouldReturn0()
+        public void MeasureDeviceShouldReturnCorrectValue()
         {
             var deviceID = "28-000006cc02c9";
             var mock = new Mock<IFileWrapper>();

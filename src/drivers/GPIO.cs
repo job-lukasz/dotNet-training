@@ -16,8 +16,7 @@ namespace rpi_dotnet
 
         public GPIO(string address, IFileWrapper fileWrapper = null)
         {
-            if (fileWrapper == null) file = new FileWrapper();
-            else file = fileWrapper;
+            file = fileWrapper ?? new FileWrapper();
             pinAddress = address;
         }
 
