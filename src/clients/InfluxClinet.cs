@@ -30,7 +30,7 @@ namespace rpi_dotnet
             log.Info($"Create database {database}");
             return await influx.CreateDatabaseAsync(database);
         }
-        public async Task<bool> addMeasue(string measureName, string spaceID, double value)
+        public async Task<bool> addMeasure(string measureName, string spaceID, double value)
         {
             if (dbExists == null)
             {
