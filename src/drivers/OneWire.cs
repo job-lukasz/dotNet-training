@@ -7,9 +7,9 @@ namespace rpi_dotnet
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 #if DEBUG
-        public static readonly string path = "./sys/bus/w1/devices/";
+        public static readonly string path = "./sys/bus/w1/devices";
 #else
-        public static readonly string path = "/sys/bus/w1/devices/";
+        public static readonly string path = "/sys/bus/w1/devices";
 #endif
         private IFileWrapper file;
         public OneWire(IFileWrapper fileWrapper = null)

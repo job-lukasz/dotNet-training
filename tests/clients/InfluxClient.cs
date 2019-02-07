@@ -31,7 +31,7 @@ namespace Tests
             Assert.AreEqual(true, value);
             Assert.AreEqual("temperature", callArgs["measureName"]);
             Assert.AreEqual("salon", (callArgs["tags"] as Dictionary<string, string>)["spaceID"]);
-            Assert.AreEqual(27.122, (callArgs["fields"] as Dictionary<string, InfluxValueField>)["Doublefield"].Value);
+            Assert.AreEqual(27.122, (callArgs["fields"] as Dictionary<string, InfluxValueField>)["value"].Value);
         }
 
         [Test]
