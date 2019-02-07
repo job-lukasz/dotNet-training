@@ -9,8 +9,10 @@ namespace rpi_dotnet
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private List<DeviceConfiguration> configuredDevices;
         private InfluxClient client;
-        public TempReporter(List<DeviceConfiguration> configuration, OneWire w1Bus = null, InfluxClient influxClient = null)
+        private OneWire w1bus;
+        public TempReporter(List<DeviceConfiguration> configuration, OneWire OneWireBus = null, InfluxClient influxClient = null)
         {
+            w1bus = OneWireBus ?? new OneWire();
             configuredDevices = configuration;
             client = influxClient ?? new InfluxClient("http://home-server.local:8086", "homeTest"); //TODO: move this hardcoded data
             initDevices();
@@ -47,7 +49,6 @@ namespace rpi_dotnet
         }
         private void initDevices()
         {
-            var w1bus = new OneWire();
             configuredDevices.ForEach((currentDevice) =>
             {
                 var foundedDevice = w1bus.getDevice(currentDevice.deviceID);
