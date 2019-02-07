@@ -10,12 +10,12 @@ namespace rpi_dotnet
         private IInfluxDBClient influx;
         private string database;
         private bool? dbExists = null;
-        public InfluxClient(string url = "home-server.local", string dbName = "home")
+        public InfluxClient(string url, string dbName)
         {
             influx = new InfluxDBClient(url);
             database = dbName;
         }
-        public InfluxClient(IInfluxDBClient client, string dbName = "home")
+        public InfluxClient(IInfluxDBClient client, string dbName)
         {
             influx = client;
             database = dbName;
