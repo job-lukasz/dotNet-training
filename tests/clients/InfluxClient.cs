@@ -24,7 +24,7 @@ namespace Tests
                 });
 
             var influxClient = new InfluxClient(mock.Object, "database");
-            var value = await influxClient.addMeasue("temperature", "salon", 27.122);
+            var value = await influxClient.addMeasure("temperature", "salon", 27.122);
 
             mock.Verify(client => client.GetInfluxDBNamesAsync(), Times.Once());
             mock.Verify(client => client.PostPointAsync("database", It.IsAny<InfluxDatapoint<InfluxValueField>>()), Times.Once());
@@ -45,7 +45,7 @@ namespace Tests
                 .Returns(Task.FromResult(true));
 
             var influxClient = new InfluxClient(mock.Object, "database");
-            await influxClient.addMeasue("", "", 0.0);
+            await influxClient.addMeasure("", "", 0.0);
 
             mock.Verify(client => client.GetInfluxDBNamesAsync(), Times.Once());
             mock.Verify(client => client.CreateDatabaseAsync("database"), Times.Once());

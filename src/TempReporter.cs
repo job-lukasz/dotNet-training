@@ -4,72 +4,80 @@ using System.Threading.Tasks;
 
 namespace rpi_dotnet
 {
-    public class TempReporter
+    public class TempReporter //TODO add UT
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private Dictionary<string, string> config;
+        private List<DeviceConfiguration> configuredDevices;
         private InfluxClient client;
-        private Dictionary<string, DS18B20> tempSensors = new Dictionary<string, DS18B20>();
-        public TempReporter(Dictionary<string, string> configuration, OneWire w1Bus = null, InfluxClient influxClient = null)
+        public TempReporter(List<DeviceConfiguration> configuration, OneWire w1Bus = null, InfluxClient influxClient = null)
         {
-            config = configuration;
+            configuredDevices = configuration;
             client = influxClient ?? new InfluxClient("home-server.local", "homeTest"); //TODO: move this hardcoded data
-            var w1bus = new OneWire();
-            var devices = w1bus.getDevices();
-            devices.ForEach((device) =>
-            {
-                if (device is DS18B20) tempSensors.Add(device.deviceID, (DS18B20)device);
-            });
+            initDevices();
         }
 
-        public async Task<bool> Report()
+        public bool Report()
         {
-            var temperatures = ReadTemp();
             var success = true;
-            foreach (KeyValuePair<string, string> configuredDevice in config)
+            if (ReadTemp()) //report only when all devices readed succesfully
             {
-                if (temperatures.ContainsKey(configuredDevice.Key))
+                configuredDevices.ForEach(async (device) =>
                 {
-                    var spaceId = configuredDevice.Value;
                     try
                     {
-                        var successfull = await client.addMeasure("temperature", spaceId, temperatures[configuredDevice.Key]);
-                        if(!successfull){
+                        var successfull = await client.addMeasure("temperature", device.spaceID, device.sensor.lastMeasure);
+                        if (!successfull)
+                        {
                             success = false;
-                            log.Warn($"Something went wrong during sent data to DB. Device: {configuredDevice.Key}");
+                            log.Warn($"Something went wrong during sent data to DB. Device: {device.deviceID}");
                         }
                     }
                     catch (Exception err)
                     {
-                        log.Error($"Error occure during sent data to DB. Device: {configuredDevice.Key}");
+                        success = false;
+                        log.Error($"Error occure during sent data to DB. Device: {device.deviceID}");
                         log.Error(err);
                     }
-                }
+                });
             }
             return success;
         }
-        private Dictionary<string, float> ReadTemp()
+        private void initDevices()
         {
-            var temperatures = new Dictionary<string, float>();
-            foreach (KeyValuePair<string, string> configuredDevice in config)
+            var w1bus = new OneWire();
+            var devices = w1bus.getDevices();
+            configuredDevices.ForEach((currentDevice) =>
             {
-                if (tempSensors.ContainsKey(configuredDevice.Key))
+                var foundedDevice = w1bus.getDevice(currentDevice.deviceID);
+                if (foundedDevice != null && foundedDevice is DS18B20)
                 {
-                    try
-                    {
-                        temperatures.Add(configuredDevice.Key, tempSensors[configuredDevice.Key].Measure());
-                    }
-                    catch (Exception err)
-                    {
-                        log.Error($"Exception during reading value for device: {configuredDevice.Key}");
-                    }
+                    currentDevice.sensor = (DS18B20)foundedDevice;
+                    log.Info($"Sensor found for device: {currentDevice.deviceID}");
                 }
                 else
                 {
-                    log.Warn($"Device {configuredDevice.Key} from config is not connected");
+                    currentDevice.sensor = null;
+                    log.Warn($"Sensor not found for device: {currentDevice.deviceID}");
                 }
-            }
-            return temperatures;
+            });
+        }
+        private bool ReadTemp()
+        {
+            var success = true;
+            configuredDevices.ForEach(device =>
+            {
+                try
+                {
+                    device.sensor.Measure();
+                }
+                catch (Exception err)
+                {
+                    log.Error($"Exception during reading value for device: {device.deviceID}");
+                    log.Error(err);
+                    success = false;
+                }
+            });
+            return success;
         }
     }
 }

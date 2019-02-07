@@ -31,13 +31,24 @@ namespace rpi_dotnet
             get { return _deviceID; }
             private set { _deviceID = value; }
         }
+        private float _lastMeasure;
+        public float lastMeasure
+        {
+            get { return _lastMeasure; }
+            private set { _lastMeasure = value; }
+        }
+
         public float Measure()
         {
             log.Debug($"Get measure for device: {_deviceID}");
             var rawOutput = file.Read($"{w1busPath}/{_deviceID}/w1_slave");
             log.Debug($"Read raw data: '''{rawOutput}'''");
             var measure = new DS18B20Measure(rawOutput);
-            if (measure.crcStatus) return measure.temp;
+            if (measure.crcStatus)
+            {
+                lastMeasure = measure.temp;
+                return lastMeasure;
+            }
             else throw new System.Exception();
         }
     }
