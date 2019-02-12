@@ -45,6 +45,7 @@ namespace rpi_dotnet
             point.Fields.Add("value", new InfluxValueField(value));
             point.MeasurementName = measureName;
             log.Info($"Add measure point: {{MeasureName: {measureName}, spaceID: {spaceID}, value: {value} }} to {database}");
+            
             return await influx.PostPointAsync(database, point);
         }
     }
