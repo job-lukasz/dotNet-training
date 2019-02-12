@@ -1,34 +1,28 @@
 using System;
 namespace rpi_dotnet
 {
-    public class ConfiguredTempSensor : IConfiguredDevice
+    public class ConfiguredGPIOSensor : IConfiguredDevice
     {
-        public readonly string deviceID;
         public readonly string spaceID;
         public event EventHandler<MeasuredValueChange> ValueChanged;
-        private IOneWireDevice sensor;
+        private GPIO sensor;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private OneWire w1bus;
 
-        public ConfiguredTempSensor(string deviceId, string spaceId, OneWire OneWireBus = null)
+        public ConfiguredGPIOSensor(string pinAddress, string spaceId)
         {
-            this.deviceID = deviceId;
+            this.sensor = new GPIO(pinAddress);
             this.spaceID = spaceId;
-            w1bus = OneWireBus ?? new OneWire();
         }
         public bool FindDevice()
         {
-            var foundedDevice = w1bus.getDevice(deviceID);
-            if (foundedDevice != null && foundedDevice is DS18B20)
+            try
             {
-                sensor = (DS18B20)foundedDevice;
-                log.Info($"Sensor found for device: {deviceID}");
-                return true;
+                return this.sensor.setDirection(GPIO.Direction.IN);
             }
-            else
+            catch (Exception err)
             {
-                sensor = null;
-                log.Warn($"Sensor not found for device: {deviceID}");
+                log.Error($"Error occure during set Pin direction for: {sensor.pinAddress} ");
+                log.Error(err);
             }
             return false;
         }
@@ -39,16 +33,17 @@ namespace rpi_dotnet
                 var oldValue = sensor.lastMeasure;
                 try
                 {
-                    var newValue = sensor.Measure();
+                    var newValue = sensor.getValue();
                     if (sensor.lastMeasure != oldValue)
                     {
-                        OnValueChanged(new MeasuredValueChange("temperature",newValue, spaceID, deviceID));
+                        var value = newValue ? 1 : 0;
+                        OnValueChanged(new MeasuredValueChange("inRoomSensor", value, spaceID, sensor.pinAddress));
                         return true;
                     }
                 }
                 catch (Exception err)
                 {
-                    log.Error($"Something wnet wrong during measure. Device : {sensor.deviceID}");
+                    log.Error($"Something wnet wrong during get value from gpio. Address: {sensor.pinAddress}");
                     log.Error(err);
                 }
             }

@@ -10,26 +10,16 @@ namespace rpi_dotnet
         public DS18B20(string deviceID, IFileWrapper fileWrapper = null)
         {
             file = fileWrapper ?? new FileWrapper();
-            this._deviceID = deviceID;
+            this.deviceID = deviceID;
         }
 
-        private string _deviceID;
-        public string deviceID
-        {
-            get { return _deviceID; }
-            private set { _deviceID = value; }
-        }
-        private float? _lastMeasure;
-        public float? lastMeasure
-        {
-            get { return _lastMeasure; }
-            private set { _lastMeasure = value; }
-        }
+        public string deviceID{ get; private set;}
+        public float? lastMeasure {get; private set;}
 
         public float Measure()
         {
-            log.Debug($"Get measure for device: {_deviceID}");
-            var rawOutput = file.Read($"{OneWire.path}/{_deviceID}/w1_slave");
+            log.Debug($"Get measure for device: {deviceID}");
+            var rawOutput = file.Read($"{OneWire.path}/{deviceID}/w1_slave");
             log.Debug($"Read raw data: {rawOutput}");
             var measure = new DS18B20Measure(rawOutput);
             if (measure.crcStatus)
@@ -40,7 +30,7 @@ namespace rpi_dotnet
             else throw new System.Exception();
         }
 
-        class DS18B20Measure
+        private class DS18B20Measure
         {
             public float temp;
             public bool crcStatus;

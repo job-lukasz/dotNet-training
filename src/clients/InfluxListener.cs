@@ -16,7 +16,7 @@ namespace rpi_dotnet
             try
             {
                 {
-                    var successfull = await client.addMeasure("temperature", value.SpaceID, value.NewValue);
+                    var successfull = await client.addMeasure(value.MeasureName, value.SpaceID, value.NewValue);
                     if (!successfull)
                     {
                         log.Warn($"Something went wrong during sent data to DB. Device: {value.DeviceID}");

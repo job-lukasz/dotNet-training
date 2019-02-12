@@ -9,14 +9,15 @@ namespace rpi_dotnet
         public static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly List<IConfiguredDevice> tempDeviceConfigurations = new List<IConfiguredDevice>{
             new ConfiguredTempSensor("28-000006cc02c9","salon"),
-            new ConfiguredTempSensor("28-000006cc00ce","korytarz")
-        }; //TODO: should be configured from iotHUB
+            new ConfiguredTempSensor("28-000006cc00ce","korytarz"),
+            new ConfiguredGPIOSensor("23", "salon")
+        }; 
+        //TODO: should be configured from iotHUB
 
         static void Main(string[] args)
         {
             var deviceManager = new DeviceManager(tempDeviceConfigurations);
             var influxListener = new InfluxListener(new InfluxClient("http://home-server.local:8086", "homeTest"));
-            
             deviceManager.AddListener(influxListener);
 
             log.Info("Start main program loop");

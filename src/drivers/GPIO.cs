@@ -3,17 +3,22 @@ namespace rpi_dotnet
 {
     public class GPIO
     {
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        private static readonly string gpioPath = "/sys/class/gpio";
-
-        IFileWrapper file;
-        string pinAddress;
         public enum Direction
         {
-            IN, OUT
+            IN, OUT, Undefined
         }
 
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+#if DEBUG
+        private static readonly string gpioPath = "./sys/class/gpio";
+#else
+        private static readonly string gpioPath = "/sys/class/gpio";
+#endif
+        private Direction direction = Direction.Undefined;
+        private bool isExported = false;
+        IFileWrapper file;
+        public string pinAddress { private set; get; }
+        public bool? lastMeasure { get; private set; }
         public GPIO(string address, IFileWrapper fileWrapper = null)
         {
             file = fileWrapper ?? new FileWrapper();
@@ -27,12 +32,14 @@ namespace rpi_dotnet
             {
                 if (exportPin() && setDirection(Direction.OUT))
                 {
-                    file.Write($"{gpioPath}/gpio{pinAddress}/value", value.ToString());
+                    file.Write($"{gpioPath}/gpio{pinAddress}/value", value ? "1" : "0");
+                    lastMeasure = value;
                 }
             }
             catch (System.Exception err)
             {
                 log.Error(err);
+                lastMeasure = null;
                 return false;
             }
             return true;
@@ -45,7 +52,8 @@ namespace rpi_dotnet
             {
                 if (exportPin() && setDirection(Direction.IN))
                 {
-                    return file.Read($"{gpioPath}/gpio{pinAddress}/value") == "1";
+                    lastMeasure = file.Read($"{gpioPath}/gpio{pinAddress}/value") == "1";
+                    return (bool)lastMeasure;
                 }
                 return false;
             }
@@ -56,17 +64,21 @@ namespace rpi_dotnet
             }
         }
 
-        private bool setDirection(Direction direction)
+        public bool setDirection(Direction direction)
         {
-            log.Debug($"Try to set direction: {direction} on pin: {pinAddress}");
-            try
+            if (this.direction != direction)
             {
-                file.Write($"{gpioPath}/gpio{pinAddress}/direction", direction.ToString());
-            }
-            catch (System.Exception err)
-            {
-                log.Error(err);
-                return false;
+                log.Debug($"Try to set direction: {direction} on pin: {pinAddress}");
+                try
+                {
+                    file.Write($"{gpioPath}/gpio{pinAddress}/direction", direction.ToString());
+                    this.direction = direction;
+                }
+                catch (System.Exception err)
+                {
+                    log.Error(err);
+                    return false;
+                }
             }
             return true;
         }
@@ -77,10 +89,12 @@ namespace rpi_dotnet
             try
             {
                 file.Write($"{gpioPath}/export", pinAddress);
+                isExported = true;
             }
             catch (System.Exception err)
             {
                 log.Error(err);
+                isExported = false;
                 return false;
             }
             return true;
