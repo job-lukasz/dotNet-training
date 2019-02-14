@@ -10,8 +10,10 @@ namespace rpi_dotnet
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private OneWire w1bus;
 
+        public DeviceType type {private set; get;}
         public ConfiguredTempSensor(string deviceId, string spaceId, OneWire OneWireBus = null)
         {
+            this.type = DeviceType.SENSOR;
             this.deviceID = deviceId;
             this.spaceID = spaceId;
             w1bus = OneWireBus ?? new OneWire();
@@ -32,17 +34,17 @@ namespace rpi_dotnet
             }
             return false;
         }
-        public bool Measure()
+        public bool Act()
         {
             if (sensor != null)
             {
-                var oldValue = sensor.lastMeasure;
+                var oldValue = sensor.lastValue;
                 try
                 {
                     var newValue = sensor.Measure();
-                    if (sensor.lastMeasure != oldValue)
+                    if (sensor.lastValue != oldValue)
                     {
-                        OnValueChanged(new MeasuredValueChange("temperature",newValue, spaceID, deviceID));
+                        OnValueChanged(new MeasuredValueChange("heatWaterTemp", newValue, spaceID, deviceID));
                         return true;
                     }
                 }

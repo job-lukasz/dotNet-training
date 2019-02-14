@@ -4,6 +4,6 @@ namespace rpi_dotnet
     {
         string deviceID { get; }
         float Measure();
-        float? lastMeasure { get; }
+        float? lastValue { get; }
     }
 }

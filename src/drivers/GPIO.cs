@@ -18,7 +18,7 @@ namespace rpi_dotnet
         private bool isExported = false;
         IFileWrapper file;
         public string pinAddress { private set; get; }
-        public bool? lastMeasure { get; private set; }
+        public bool? lastValue { get; private set; }
         public GPIO(string address, IFileWrapper fileWrapper = null)
         {
             file = fileWrapper ?? new FileWrapper();
@@ -33,13 +33,14 @@ namespace rpi_dotnet
                 if (exportPin() && setDirection(Direction.OUT))
                 {
                     file.Write($"{gpioPath}/gpio{pinAddress}/value", value ? "1" : "0");
-                    lastMeasure = value;
+                    lastValue = value;
                 }
             }
             catch (System.Exception err)
             {
+                log.Error($"Unalble to set value: {value} on pin: {pinAddress}");
                 log.Error(err);
-                lastMeasure = null;
+                lastValue = null;
                 return false;
             }
             return true;
@@ -52,13 +53,14 @@ namespace rpi_dotnet
             {
                 if (exportPin() && setDirection(Direction.IN))
                 {
-                    lastMeasure = file.Read($"{gpioPath}/gpio{pinAddress}/value") == "1";
-                    return (bool)lastMeasure;
+                    lastValue = file.Read($"{gpioPath}/gpio{pinAddress}/value") == "1";
+                    return (bool)lastValue;
                 }
                 return false;
             }
             catch (System.Exception err)
             {
+                log.Error($"Unalble to get value from pin: {pinAddress}");
                 log.Error(err);
                 return false;
             }
@@ -76,6 +78,7 @@ namespace rpi_dotnet
                 }
                 catch (System.Exception err)
                 {
+                    log.Error($"Unalble to set direction: {direction} on pin: {pinAddress}");
                     log.Error(err);
                     return false;
                 }
@@ -94,12 +97,14 @@ namespace rpi_dotnet
                 }
                 catch (System.Exception err)
                 {
+                    log.Error($"Unalble to export pin: {pinAddress}");
                     log.Error(err);
                     isExported = false;
                     return false;
                 }
                 return true;
             }
+            return true;
         }
     }
 }

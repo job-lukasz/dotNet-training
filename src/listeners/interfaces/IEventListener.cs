@@ -7,7 +7,7 @@ namespace rpi_dotnet
         public readonly float NewValue;
         public readonly string SpaceID;
         public readonly string DeviceID;
-        public MeasuredValueChange(string measureName, float newValue, string spaceID, string deviceID)
+        public MeasuredValueChange(string measureName, float newValue, string spaceID, string deviceID) 
         {
             MeasureName = measureName;
             NewValue = newValue;

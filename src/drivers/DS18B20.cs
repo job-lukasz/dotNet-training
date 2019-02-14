@@ -14,7 +14,7 @@ namespace rpi_dotnet
         }
 
         public string deviceID{ get; private set;}
-        public float? lastMeasure {get; private set;}
+        public float? lastValue {get; private set;}
 
         public float Measure()
         {
@@ -24,8 +24,8 @@ namespace rpi_dotnet
             var measure = new DS18B20Measure(rawOutput);
             if (measure.crcStatus)
             {
-                lastMeasure = measure.temp;
-                return (float)lastMeasure; //corrected measure date could not be null
+                lastValue = measure.temp;
+                return (float)lastValue; //corrected measure date could not be null
             }
             else throw new System.Exception();
         }

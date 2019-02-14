@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace rpi_dotnet
 {
@@ -20,20 +21,28 @@ namespace rpi_dotnet
             {
                 currentDevice.FindDevice();
             });
+            initListeners();
+        }
+        private void initListeners(){
+            devices.Where((device) => device.type == DeviceType.ACTUATOR)
+                   .ToList()
+                   .ForEach((device) => this.AddListener(device as IConfiguredActuator));
         }
 
         public void AddListener(IEventListener listener)
         {
             devices.ForEach((currentDevice) =>
             {
-                currentDevice.ValueChanged += listener.onEvent;
+                if(listener != null){
+                    currentDevice.ValueChanged += listener.onEvent;
+                }
             });
         }
         public void ReadSensors()
         {
             devices.ForEach(device =>
             {
-                device.Measure();
+                if(device.type == DeviceType.SENSOR) device.Act();
             });
         }
     }

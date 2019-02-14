@@ -24,7 +24,7 @@ namespace Tests
             var device = new DS18B20(deviceID, mock.Object);
             var measureValue = device.Measure();
             Assert.AreEqual(21.375f, measureValue);
-            Assert.AreEqual(21.375f, device.lastMeasure);
+            Assert.AreEqual(21.375f, device.lastValue);
         }
 
         [Test]

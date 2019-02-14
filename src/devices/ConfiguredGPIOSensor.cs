@@ -8,8 +8,10 @@ namespace rpi_dotnet
         private GPIO sensor;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        public DeviceType type {private set; get;}
         public ConfiguredGPIOSensor(string pinAddress, string spaceId)
-        {
+        {   
+            this.type = DeviceType.SENSOR;
             this.sensor = new GPIO(pinAddress);
             this.spaceID = spaceId;
         }
@@ -26,18 +28,18 @@ namespace rpi_dotnet
             }
             return false;
         }
-        public bool Measure()
+        public bool Act()
         {
             if (sensor != null)
             {
-                var oldValue = sensor.lastMeasure;
+                var oldValue = sensor.lastValue;
                 try
                 {
                     var newValue = sensor.getValue();
-                    if (sensor.lastMeasure != oldValue)
+                    if (sensor.lastValue != oldValue)
                     {
                         var value = newValue ? 1 : 0;
-                        OnValueChanged(new MeasuredValueChange("inRoomSensor", value, spaceID, sensor.pinAddress));
+                        OnValueChanged(new MeasuredValueChange("indoorSensor", value, spaceID, sensor.pinAddress));
                         return true;
                     }
                 }
