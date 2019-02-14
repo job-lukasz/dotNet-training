@@ -85,19 +85,21 @@ namespace rpi_dotnet
 
         private bool exportPin()
         {
-            log.Debug($"Try to export pin: {pinAddress}");
-            try
-            {
-                file.Write($"{gpioPath}/export", pinAddress);
-                isExported = true;
+            if(!isExported){
+                log.Debug($"Try to export pin: {pinAddress}");
+                try
+                {
+                    file.Write($"{gpioPath}/export", pinAddress);
+                    isExported = true;
+                }
+                catch (System.Exception err)
+                {
+                    log.Error(err);
+                    isExported = false;
+                    return false;
+                }
+                return true;
             }
-            catch (System.Exception err)
-            {
-                log.Error(err);
-                isExported = false;
-                return false;
-            }
-            return true;
         }
     }
 }
