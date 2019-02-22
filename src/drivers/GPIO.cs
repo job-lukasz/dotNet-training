@@ -1,13 +1,8 @@
 using System;
 namespace rpi_dotnet
 {
-    public class GPIO
+    public class GPIO : IGPIODevice
     {
-        public enum Direction
-        {
-            IN, OUT, Undefined
-        }
-
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 #if DEBUG
         private static readonly string gpioPath = "./sys/class/gpio";
