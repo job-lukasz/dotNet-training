@@ -12,7 +12,7 @@ namespace Tests
         public void ShouldInitDevice()
         {
             var mock = new Mock<IGPIODevice>();
-            mock.Setup(gpio => gpio.setDirection(Direction.IN)).Returns(true);
+            mock.Setup(gpio => gpio.SetDirection(Direction.IN)).Returns(true);
             var device = new ConfiguredGPIOSensor(mock.Object, "testSpace");
             var measureValue = device.FindDevice();
             Assert.AreEqual(true, measureValue);
@@ -22,7 +22,7 @@ namespace Tests
         public void ShouldNotInitDevice()
         {
             var mock = new Mock<IGPIODevice>();
-            mock.Setup(gpio => gpio.setDirection(Direction.IN)).Throws(new Exception("Tested Exception"));
+            mock.Setup(gpio => gpio.SetDirection(Direction.IN)).Throws(new Exception("Tested Exception"));
             var device = new ConfiguredGPIOSensor(mock.Object, "testSpace");
             var measureValue = device.FindDevice();
             Assert.AreEqual(false, measureValue);
@@ -32,36 +32,36 @@ namespace Tests
         public void ShouldNotMesureValueWhenSensorNotInit()
         {
             var mock = new Mock<IGPIODevice>();
-            mock.Setup(gpio => gpio.setDirection(Direction.IN)).Throws(new Exception("Tested Exception"));
+            mock.Setup(gpio => gpio.SetDirection(Direction.IN)).Throws(new Exception("Tested Exception"));
             var device = new ConfiguredGPIOSensor(mock.Object, "testSpace");
 
             device.FindDevice();
             var measureValue = device.Act();
 
             Assert.AreEqual(false, measureValue);
-            mock.Verify(gpio => gpio.getValue(), Times.Never());
+            mock.Verify(gpio => gpio.GetValue(), Times.Never());
         }
 
         [Test]
         public void ShouldMesureValue()
         {
             var mock = new Mock<IGPIODevice>();
-            mock.Setup(gpio => gpio.setDirection(Direction.IN)).Returns(true);
-            mock.Setup(gpio => gpio.getValue()).Returns(false);
+            mock.Setup(gpio => gpio.SetDirection(Direction.IN)).Returns(true);
+            mock.Setup(gpio => gpio.GetValue()).Returns(0);
             var device = new ConfiguredGPIOSensor(mock.Object, "testSpace");
             device.FindDevice();
             var measureValue = device.Act();
 
             Assert.AreEqual(true, measureValue);
-            mock.Verify(gpio => gpio.getValue(), Times.Once());
+            mock.Verify(gpio => gpio.GetValue(), Times.Once());
         }
 
         [Test]
         public void ShouldCallActionHandler()
         {
             var mock = new Mock<IGPIODevice>();
-            mock.Setup(gpio => gpio.setDirection(Direction.IN)).Returns(true);
-            mock.Setup(gpio => gpio.getValue()).Returns(false);
+            mock.Setup(gpio => gpio.SetDirection(Direction.IN)).Returns(true);
+            mock.Setup(gpio => gpio.GetValue()).Returns(0);
             var callArgs = new Dictionary<string, object>();
             var eventListenerMock = new Mock<IEventListener>();
             eventListenerMock.Setup(e => e.onEvent(It.IsAny<object>(), It.IsAny<MeasuredValueChange>()))
@@ -82,17 +82,17 @@ namespace Tests
             Assert.AreEqual(null, callArgs["deviceID"]);
             Assert.AreEqual("indoorSensor", (string)callArgs["measureName"]);
             Assert.AreEqual("testSpace", (string)callArgs["spaceID"]);
-            Assert.AreEqual(false, (bool)callArgs["value"]);
-            mock.Verify(gpio => gpio.getValue(), Times.Once());
+            Assert.AreEqual(0, (float)callArgs["value"]);
+            mock.Verify(gpio => gpio.GetValue(), Times.Once());
             eventListenerMock.Verify(e => e.onEvent(It.IsAny<object>(), It.IsAny<MeasuredValueChange>()), Times.Once());
         }
         [Test]
         public void ShouldNotCallActionHandlerWhenValueNotChange()
         {
             var mock = new Mock<IGPIODevice>();
-            mock.Setup(gpio => gpio.setDirection(Direction.IN)).Returns(true);
-            mock.Setup(gpio => gpio.getValue()).Returns(false);
-            mock.SetupGet(gpio => gpio.lastValue).Returns(false);
+            mock.Setup(gpio => gpio.SetDirection(Direction.IN)).Returns(true);
+            mock.Setup(gpio => gpio.GetValue()).Returns(0);
+            mock.SetupGet(gpio => gpio.lastValue).Returns(0);
             var device = new ConfiguredGPIOSensor(mock.Object, "testSpace");
             var eventListenerMock = new Mock<IEventListener>();
             eventListenerMock.Setup(e => e.onEvent(It.IsAny<object>(), It.IsAny<MeasuredValueChange>()));
@@ -102,15 +102,15 @@ namespace Tests
             var measureValue = device.Act();
 
             Assert.AreEqual(false, measureValue);
-            mock.Verify(gpio => gpio.getValue(), Times.Once());
+            mock.Verify(gpio => gpio.GetValue(), Times.Once());
             eventListenerMock.Verify(e => e.onEvent(It.IsAny<object>(), It.IsAny<MeasuredValueChange>()), Times.Never());
         }
         [Test]
         public void DoesNotCallAnythingWhenUnalbeToGetValue()
         {
             var mock = new Mock<IGPIODevice>();
-            mock.Setup(gpio => gpio.setDirection(Direction.IN)).Returns(true);
-            mock.Setup(gpio => gpio.getValue()).Throws(new Exception("Test exception"));
+            mock.Setup(gpio => gpio.SetDirection(Direction.IN)).Returns(true);
+            mock.Setup(gpio => gpio.GetValue()).Throws(new Exception("Test exception"));
             var eventListenerMock = new Mock<IEventListener>();
             eventListenerMock.Setup(e => e.onEvent(It.IsAny<object>(), It.IsAny<MeasuredValueChange>()));
 
@@ -121,7 +121,7 @@ namespace Tests
             var measureValue = device.Act();
 
             Assert.AreEqual(false, measureValue);
-            mock.Verify(gpio => gpio.getValue(), Times.Once());
+            mock.Verify(gpio => gpio.GetValue(), Times.Once());
             eventListenerMock.Verify(e => e.onEvent(It.IsAny<object>(), It.IsAny<MeasuredValueChange>()), Times.Never());
         }
     }

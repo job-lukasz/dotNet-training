@@ -12,28 +12,28 @@ namespace rpi_dotnet
         private Direction direction = Direction.Undefined;
         private bool isExported = false;
         IFileWrapper file;
-        public string pinAddress { private set; get; }
-        public bool? lastValue { get; private set; }
+        public string deviceID { private set; get; }
+        public float? lastValue { get; private set; }
         public GPIO(string address, IFileWrapper fileWrapper = null)
         {
             file = fileWrapper ?? new FileWrapper();
-            pinAddress = address;
+            deviceID = address;
         }
 
-        public bool setValue(bool value)
+        public bool SetValue(bool value)
         {
-            log.Debug($"Try to set value: {value} on pin: {pinAddress}");
+            log.Debug($"Try to set value: {value} on pin: {deviceID}");
             try
             {
-                if (exportPin() && setDirection(Direction.OUT))
+                if (exportPin() && SetDirection(Direction.OUT))
                 {
-                    file.Write($"{gpioPath}/gpio{pinAddress}/value", value ? "1" : "0");
-                    lastValue = value;
+                    file.Write($"{gpioPath}/gpio{deviceID}/value", value ? "1" : "0");
+                    lastValue = value ? 1 : 0;
                 }
             }
             catch (System.Exception err)
             {
-                log.Error($"Unalble to set value: {value} on pin: {pinAddress}");
+                log.Error($"Unalble to set value: {value} on pin: {deviceID}");
                 log.Error(err);
                 lastValue = null;
                 return false;
@@ -41,39 +41,39 @@ namespace rpi_dotnet
             return true;
         }
 
-        public bool getValue()
+        public float GetValue()
         {
-            log.Debug($"Try to get value from: {gpioPath}/gpio{pinAddress}/value");
+            log.Debug($"Try to get value from: {gpioPath}/gpio{deviceID}/value");
             try
             {
-                if (exportPin() && setDirection(Direction.IN))
+                if (exportPin() && SetDirection(Direction.IN))
                 {
-                    lastValue = file.Read($"{gpioPath}/gpio{pinAddress}/value") == "1";
-                    return (bool)lastValue;
+                    lastValue = file.Read($"{gpioPath}/gpio{deviceID}/value") == "1" ? 1 : 0;
+                    return (float)lastValue;
                 }
-                return false;
+                return 0;
             }
             catch (System.Exception err)
             {
-                log.Error($"Unalble to get value from pin: {pinAddress}");
+                log.Error($"Unalble to get value from pin: {deviceID}");
                 log.Error(err);
-                return false;
+                return 0;
             }
         }
 
-        public bool setDirection(Direction direction)
+        public bool SetDirection(Direction direction)
         {
             if (this.direction != direction)
             {
-                log.Debug($"Try to set direction: {direction} on pin: {pinAddress}");
+                log.Debug($"Try to set direction: {direction} on pin: {deviceID}");
                 try
                 {
-                    file.Write($"{gpioPath}/gpio{pinAddress}/direction", direction.ToString());
+                    file.Write($"{gpioPath}/gpio{deviceID}/direction", direction.ToString());
                     this.direction = direction;
                 }
                 catch (System.Exception err)
                 {
-                    log.Error($"Unalble to set direction: {direction} on pin: {pinAddress}");
+                    log.Error($"Unalble to set direction: {direction} on pin: {deviceID}");
                     log.Error(err);
                     return false;
                 }
@@ -83,16 +83,17 @@ namespace rpi_dotnet
 
         private bool exportPin()
         {
-            if(!isExported){
-                log.Debug($"Try to export pin: {pinAddress}");
+            if (!isExported)
+            {
+                log.Debug($"Try to export pin: {deviceID}");
                 try
                 {
-                    file.Write($"{gpioPath}/export", pinAddress);
+                    file.Write($"{gpioPath}/export", deviceID);
                     isExported = true;
                 }
                 catch (System.Exception err)
                 {
-                    log.Error($"Unalble to export pin: {pinAddress}");
+                    log.Error($"Unalble to export pin: {deviceID}");
                     log.Error(err);
                     isExported = false;
                     return false;

@@ -4,12 +4,9 @@ namespace rpi_dotnet
     {
         IN, OUT, Undefined
     }
-    public interface IGPIODevice
+    public interface IGPIODevice : ISensorDevice
     {
-        string pinAddress { get; }
-        bool? lastValue { get; }
-        bool setValue(bool value);
-        bool getValue();
-        bool setDirection(Direction direction);
+        bool SetValue(bool value);
+        bool SetDirection(Direction direction);
     }
 }

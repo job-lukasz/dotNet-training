@@ -15,8 +15,8 @@ namespace Tests
 
             var device = new GPIO("20", mock.Object);
 
-            var value = device.getValue();
-            Assert.AreEqual(false, value);
+            var value = device.GetValue();
+            Assert.AreEqual(0, value);
             mock.Verify(fileWrapper => fileWrapper.Read("./sys/class/gpio/gpio20/value"), Times.Never());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/gpio20/direction", "IN"), Times.Never());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/export", "20"), Times.Once());
@@ -31,8 +31,8 @@ namespace Tests
 
             var device = new GPIO("20", mock.Object);
 
-            var value = device.getValue();
-            Assert.AreEqual(false, value);
+            var value = device.GetValue();
+            Assert.AreEqual(0, value);
             mock.Verify(fileWrapper => fileWrapper.Read("./sys/class/gpio/gpio20/value"), Times.Never());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/gpio20/direction", "IN"), Times.Once());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/export", "20"), Times.Once());
@@ -47,9 +47,9 @@ namespace Tests
             mock.Setup(fileWrapper => fileWrapper.Write("./sys/class/gpio/export", "20"));
             var device = new GPIO("20", mock.Object);
 
-            var value = device.getValue();
+            var value = device.GetValue();
 
-            Assert.AreEqual(true, value);
+            Assert.AreEqual(1, value);
             mock.Verify(fileWrapper => fileWrapper.Read("./sys/class/gpio/gpio20/value"), Times.Once());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/gpio20/direction", "IN"), Times.Once());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/export", "20"), Times.Once());
@@ -64,9 +64,9 @@ namespace Tests
             mock.Setup(fileWrapper => fileWrapper.Write("./sys/class/gpio/export", "20"));
             var device = new GPIO("20", mock.Object);
 
-            var value = device.getValue();
+            var value = device.GetValue();
 
-            Assert.AreEqual(false, value);
+            Assert.AreEqual(0, value);
             mock.Verify(fileWrapper => fileWrapper.Read("./sys/class/gpio/gpio20/value"), Times.Once());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/gpio20/direction", "IN"), Times.Once());
             mock.Verify(fileWrapper => fileWrapper.Write("./sys/class/gpio/export", "20"), Times.Once());

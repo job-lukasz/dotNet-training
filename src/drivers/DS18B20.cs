@@ -16,7 +16,7 @@ namespace rpi_dotnet
         public string deviceID{ get; private set;}
         public float? lastValue {get; private set;}
 
-        public float Measure()
+        public float GetValue()
         {
             log.Debug($"Get measure for device: {deviceID}");
             var rawOutput = file.Read($"{OneWire.path}/{deviceID}/w1_slave");
