@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace rpi_dotnet
 {
-    public class OneWire
+    public class OneWire: IOneWire
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 #if DEBUG
