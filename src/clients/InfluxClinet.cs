@@ -6,7 +6,6 @@ namespace rpi_dotnet
     public class InfluxClient
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         private IInfluxDBClient influx;
         private string database;
         private bool? dbExists = null;

@@ -14,20 +14,21 @@ namespace rpi_dotnet
             new ConfiguredTempSensor("28-000006cc02c9","salon"),
             new ConfiguredTempSensor("28-000006cc00ce","korytarz"),
             new ConfiguredGPIOSensor("23", "salon"),
-            new ConfiguredPompActuator("44", "salon")
         };
         //TODO: should be configured from iotHUB
 
         static void Main(string[] args)
         {
-            Options options;
+            Options options = new Options();
             CommandLine.Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(opts => options = opts)
             .WithNotParsed<Options>((errs) => HandleParseError(errs));
 
             var deviceManager = new DeviceManager(tempDeviceConfigurations);
-            var influxListener = new InfluxListener(new InfluxClient("http://home-server.local:8086", "homeTest"));
+            var influxListener = new InfluxListener(new InfluxClient(options.influxServer, options.influxDB));
+            var iotHubListener = new IOTHubListener(new IotHubClient(options.iotHubAuthString));
             deviceManager.AddListener(influxListener);
+            deviceManager.AddListener(iotHubListener);
             log.Info("Start main program loop");
             while (true)
             {
@@ -40,7 +41,10 @@ namespace rpi_dotnet
         {
             if (errs.Any())
             {
-                log.Error(errs);
+                foreach(Error err in errs){
+                    log.Error(err.ToString());
+                }
+                Environment.Exit(-1);
             }
         }
     }
